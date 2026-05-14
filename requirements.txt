@@ -8,3 +8,5 @@ valkey
 pydantic
 python-dotenv
 pre-commit
+streamlit-mic-recorder
+edge-tts

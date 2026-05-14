@@ -1,5 +1,5 @@
 import json
-from app.core.prompt import SYSTEM_PROMPT
+from app.core.prompt import get_system_prompt
 from app.models.tool_definition import TOOLS
 from app.core.tool_registry import ToolRegistry
 from app.core.local_llm_client import LocalLLMClient
@@ -16,16 +16,62 @@ class DialogueManager:
         self.logger = InteractionLogger()
 
     async def process_turn(
-        self, session_id: str, user_input: str, cart_state: list
+        self,
+        session_id: str,
+        user_input: str,
+        cart_state: list,
+        chat_history: list = None,
     ) -> str:
         """
         Main execution loop for a single conversation turn.
         """
-        # 1. Prepare conversation history with the Master System Prompt
-        messages = [
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_input},
+        if chat_history is None:
+            chat_history = []
+
+        # Early payment intent detection – bypass LLM if user explicitly wants to pay
+        payment_phrases = [
+            "please proceed to payment",
+            "please proceed",
+            "pay now",
+            "checkout",
+            "proceed to payment",
+            "no please please proceed",
+            "pay",
+            "that's it",
+            "that is it",
+            "that's all",
+            "that is all",
+            "nothing else",
+            "i am done",
+            "i'm done",
+            "done ordering",
         ]
+        lowered = user_input.lower()
+        if any(p in lowered for p in payment_phrases):
+            # Directly invoke checkout tool and return a friendly confirmation
+            result = await self.tools.execute(
+                {"name": "checkout", "arguments": "{}"}, cart_state
+            )
+            if result.get("success"):
+                return f"Order complete. Your total is ₹{result.get('total')}. Please drive to the next window!"
+            else:
+                return result.get("message", "Unable to process payment at this time.")
+
+        # 1. Prepare conversation history with the Master System Prompt
+        messages = [{"role": "system", "content": get_system_prompt()}]
+
+        # Append recent chat history (last 10 messages to save context limit, format the transcript markers)
+        for msg in chat_history[-10:]:
+            clean_content = msg["content"].replace("🗣️ [Transcribed]: ", "")
+            messages.append({"role": msg["role"], "content": clean_content})
+
+        # If the latest user_input isn't already the last message in the history, append it
+        if (
+            not messages
+            or messages[-1]["role"] != "user"
+            or messages[-1]["content"] != user_input
+        ):
+            messages.append({"role": "user", "content": user_input})
 
         # 2. First Pass: Get intent from Llama-3 (check for tool calls)
         response_data = await self.llm_client.generate(messages, tools=TOOLS)
@@ -36,11 +82,19 @@ class DialogueManager:
 
         message = response_data["choices"][0]["message"]
 
-        # 3. Check for Tool Calls (e.g., adding to cart)
+        # Guard: if LLM returns neither text nor tool calls, fallback gracefully
+        if not message.get("content") and not message.get("tool_calls"):
+            return (
+                "I'm having a bit of trouble with my connection. Could you repeat that?"
+            )
+
         if "tool_calls" in message and message["tool_calls"]:
+            messages.append(message)  # Append the assistant message once
+
             for tool_call in message["tool_calls"]:
                 tool_data = tool_call["function"]
                 name = tool_data["name"]
+                print(f"DEBUG: Tool called -> {name}")
                 args = json.loads(tool_data.get("arguments", "{}"))
 
                 # --- VALIDATION LAYER ---
@@ -65,9 +119,7 @@ class DialogueManager:
                     session_id, user_input, tool_call=tool_data, tool_result=result
                 )
 
-                # --- SECOND PASS: Final Response Generation ---
-                # Provide the tool result back to the LLM to confirm to the user
-                messages.append(message)
+                # Append the tool result back to the LLM to confirm to the user
                 messages.append(
                     {
                         "role": "tool",
@@ -77,8 +129,11 @@ class DialogueManager:
                     }
                 )
 
-                final_response = await self.llm_client.generate(messages)
+            # --- SECOND PASS: Final Response Generation ---
+            final_response = await self.llm_client.generate(messages)
+            if final_response:
                 return final_response["choices"][0]["message"]["content"]
+            return "Got it!"
 
         # 4. Fallback: If no tool was called, log the text-only interaction
         ai_text = message.get("content", "I'm sorry, could you say that again?")

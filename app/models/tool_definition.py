@@ -25,7 +25,16 @@ TOOLS = [
         "type": "function",
         "function": {
             "name": "get_current_offers",
-            "description": "Retrieves active discounts and daily specials to suggest to the customer.",
+            "description": "Retrieves active discounts, offers, or daily specials. Call this immediately if the user asks for any offers or discounts.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "checkout",
+            "description": "Finalizes the order and calculates the total bill. Use this when the user says they are done ordering.",
+            "parameters": {"type": "object", "properties": {}},
         },
     },
 ]

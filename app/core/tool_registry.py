@@ -1,5 +1,5 @@
 import json
-from app.services.ai_tools import add_to_cart, get_current_offers
+from app.services.ai_tools import add_to_cart, get_current_offers, checkout
 
 
 class ToolRegistry:
@@ -8,6 +8,7 @@ class ToolRegistry:
         self.registry = {
             "add_to_cart": add_to_cart,
             "get_current_offers": get_current_offers,
+            "checkout": checkout,
         }
 
     async def execute(self, tool_call, cart_state):
@@ -29,3 +30,5 @@ class ToolRegistry:
             return func(cart_state, args.get("item_id"), args.get("modifiers"))
         elif name == "get_current_offers":
             return func()
+        elif name == "checkout":
+            return func(cart_state)

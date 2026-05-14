@@ -30,3 +30,20 @@ def add_to_cart(cart, item_id, selected_modifiers=None):
     cart_entry = {"item_name": item["name"], "price": item["base_price"]}
     cart.append(cart_entry)
     return {"success": True, "message": f"Added {item['name']}"}
+
+
+def checkout(cart):
+    """Calculates the total for the cart and clears it."""
+    if not cart:
+        return {"success": False, "message": "Your cart is empty."}
+
+    total = sum(item["price"] for item in cart)
+    # In a real app, we'd send this to a payments service or KDS
+    # For now, we'll just return the total and clear the cart
+    cart.clear()
+
+    return {
+        "success": True,
+        "total": total,
+        "message": f"Order complete. Your total is ₹{total}. Please drive to the next window!",
+    }

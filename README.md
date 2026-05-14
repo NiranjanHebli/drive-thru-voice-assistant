@@ -1,20 +1,65 @@
-# Drive-Thru Ordering VA
+#  Drive-Thru Ordering VA
 
-An AI-powered drive-thru ordering assistant using Gemini Live and FastAPI.
+![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat&logo=fastapi)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit)
+![License](https://img.shields.io/badge/license-MIT-green)
 
+An AI-powered, voice-first drive-thru ordering assistant designed for Quick Service Restaurants (QSR). Built using an open-source AI stack (Llama-3, Faster-Whisper, Piper TTS, FastAPI).
 
-## Setup
+## Features
+- **Real-Time Voice Streaming**: Bi-directional WebSockets for low-latency audio processing.
+- **Deterministic Business Logic**: LLM tool-calling strictly validated against a master menu JSON.
+- **Smart Optimizer**: Auto-bundling logic to ensure customers get the best combo deals.
+- **Interaction Logging**: Automatic SQLite logging to create data flywheels for LoRA/QLoRA fine-tuning.
 
-1. Install dependencies:
+##  Setup & Installation
+
+1. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
-2. Set up environment variables in `.env`.
-3. Run the application:
+
+2. **Set up pre-commit hooks (for developers):**
    ```bash
-   uvicorn app.main:app --reload
+   pre-commit install
+   pre-commit install --hook-type commit-msg
    ```
 
+3. **Set up environment variables:**
+   Configure your LLM paths and API keys in the `.env` file.
+
+##  Running the Application
+
+This project consists of a core API backend and two frontend applications.
+
+### 1. Start the Backend (FastAPI)
+Run the core orchestration and audio pipeline server:
+```bash
+uvicorn app.main:app --reload
+### 2. Start the Voice Agent Interface
+To talk to the AI Drive-Thru Agent using your microphone:
+```bash
+streamlit run frontend/voice_agent_app.py
+```
+
+### 3. Start the Kitchen Display System (KDS)
+In a new terminal window, run the KDS to monitor incoming orders:
+```bash
+streamlit run frontend/kds_app.py
+```
+
+### 3. Start the Admin Dashboard
+In another terminal window, run the Admin dashboard to monitor AI interactions and export fine-tuning data:
+```bash
+streamlit run frontend/admin_app.py
+```
+
+##  Running Tests
+To run the validation test suite (e.g., checking breakfast hours vs all-day items):
+```bash
+PYTHONPATH=. pytest tests/
+```
 
 ## Architecture Diagram 
 
