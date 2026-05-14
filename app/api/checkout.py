@@ -1,4 +1,12 @@
 from fastapi import APIRouter
+from app.services.optimizer import optimize_cart
+from app.services.ai_tools import get_current_offers, add_to_cart
+
+
+# Mock get_current_cart for now since state manager is removed
+def get_current_cart():
+    return []
+
 
 router = APIRouter()
 
