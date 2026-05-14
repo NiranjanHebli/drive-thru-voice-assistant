@@ -8,55 +8,45 @@
 An AI-powered, voice-first drive-thru ordering assistant designed for Quick Service Restaurants (QSR). Built using an open-source AI stack (Llama-3, Faster-Whisper, Piper TTS, FastAPI).
 
 ## Features
-- **Real-Time Voice Streaming**: Bi-directional WebSockets for low-latency audio processing.
-- **Deterministic Business Logic**: LLM tool-calling strictly validated against a master menu JSON.
-- **Smart Optimizer**: Auto-bundling logic to ensure customers get the best combo deals.
-- **Interaction Logging**: Automatic SQLite logging to create data flywheels for LoRA/QLoRA fine-tuning.
+- **Voice-Interactive AI**: Real-time voice ordering using Faster-Whisper (STT) and Edge-TTS (Neural Voices).
+- **Conversational Memory**: The agent remembers previous turns and maintains order context.
+- **Deterministic Business Logic**: LLM tool-calling strictly validated against `order_details.json`.
+- **Automatic Checkout**: Smart total calculation including tax, packaging, and order finalization.
 
-##  Setup & Installation
+## Setup & Installation
 
 1. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Set up pre-commit hooks (for developers):**
-   ```bash
-   pre-commit install
-   pre-commit install --hook-type commit-msg
-   ```
+2. **Set up environment variables:**
+   Configure your `LLM_API_KEY` and `LLM_MODEL` in the `.env` file.
 
-3. **Set up environment variables:**
-   Configure your LLM paths and API keys in the `.env` file.
+## Running the Application
 
-##  Running the Application
+Everything now runs through Streamlit for a unified, stable experience.
 
-This project consists of a core API backend and two frontend applications.
-
-### 1. Start the Backend (FastAPI)
-Run the core orchestration and audio pipeline server:
-```bash
-uvicorn app.main:app --reload
-### 2. Start the Voice Agent Interface
-To talk to the AI Drive-Thru Agent using your microphone:
+### 1. Start the Voice Agent
+This is the main customer-facing interface:
 ```bash
 streamlit run frontend/voice_agent_app.py
 ```
 
-### 3. Start the Kitchen Display System (KDS)
-In a new terminal window, run the KDS to monitor incoming orders:
+### 2. Start the Kitchen Display System (KDS)
+To monitor incoming orders in real-time:
 ```bash
 streamlit run frontend/kds_app.py
 ```
 
 ### 3. Start the Admin Dashboard
-In another terminal window, run the Admin dashboard to monitor AI interactions and export fine-tuning data:
+To monitor interactions and manage the menu:
 ```bash
 streamlit run frontend/admin_app.py
 ```
 
-##  Running Tests
-To run the validation test suite (e.g., checking breakfast hours vs all-day items):
+## Running Tests
+To verify the ordering logic and tool execution:
 ```bash
 PYTHONPATH=. pytest tests/
 ```

@@ -4,7 +4,7 @@ import io
 
 
 class PiperTTS:
-    def __init__(self, voice="en-IN-PrabhatNeural"):
+    def __init__(self, voice="en-IN-NeerjaNeural"):
         self.voice = voice
 
     async def synthesize(self, text: str) -> bytes:

@@ -10,7 +10,7 @@ class LocalLLMClient:
         self.endpoint_url = os.getenv(
             "LLM_API_URL", "http://localhost:8000/v1/chat/completions"
         )
-        self.api_key = os.getenv("LLM_API_KEY", "")
+        self.api_key = os.getenv("GROQ_API_KEY", "")
         self.model = os.getenv("LLM_MODEL", "llama3-8b-instruct")
         self.client = httpx.AsyncClient()
 
@@ -32,8 +32,11 @@ class LocalLLMClient:
 
         try:
             response = await self.client.post(
-                self.endpoint_url, json=payload, headers=headers, timeout=10.0
+                self.endpoint_url, json=payload, headers=headers, timeout=30.0
             )
+            if response.status_code != 200:
+                print(f"ERROR: LLM API returned status {response.status_code}")
+                print(f"Details: {response.text}")
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:

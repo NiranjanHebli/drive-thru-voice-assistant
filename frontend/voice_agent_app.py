@@ -43,11 +43,9 @@ def process_voice_turn(audio_bytes):
     dm = DialogueManager()
 
     async def _run_pipeline():
-        # 1. STT (Stub will return "I would like a burger" for now)
+        # 1. STT
         user_text = await stt.transcribe(audio_bytes)
-        st.session_state.chat_history.append(
-            {"role": "user", "content": f"🗣️ [Transcribed]: {user_text}"}
-        )
+        st.session_state.chat_history.append({"role": "user", "content": user_text})
 
         # 2. LLM Orchestrator
         ai_response = await dm.process_turn(
@@ -92,8 +90,12 @@ with col1:
     st.divider()
     st.subheader("💬 Conversation Log")
     for msg in st.session_state.chat_history:
-        with st.chat_message(msg["role"]):
-            st.write(msg["content"])
+        if msg["role"] == "user":
+            with st.chat_message("user", avatar="👤"):
+                st.write(f"**User**: {msg['content']}")
+        else:
+            with st.chat_message("assistant", avatar="👩‍💼"):
+                st.write(f"**Lisa**: {msg['content']}")
 
     # Autoplay the TTS response
     if "last_audio" in st.session_state and st.session_state.last_audio:

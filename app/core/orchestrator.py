@@ -57,8 +57,19 @@ class DialogueManager:
             else:
                 return result.get("message", "Unable to process payment at this time.")
 
-        # 1. Prepare conversation history with the Master System Prompt
-        messages = [{"role": "system", "content": get_system_prompt()}]
+        # 1. Calculate time of day for Lisa's greeting
+        from datetime import datetime
+
+        hour = datetime.now().hour
+        if 5 <= hour < 12:
+            greeting = "morning"
+        elif 12 <= hour < 17:
+            greeting = "afternoon"
+        else:
+            greeting = "evening"
+
+        # 2. Prepare conversation history with the Master System Prompt
+        messages = [{"role": "system", "content": get_system_prompt(greeting)}]
 
         # Append recent chat history (last 10 messages to save context limit, format the transcript markers)
         for msg in chat_history[-10:]:
