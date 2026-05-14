@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+faster-whisper
+vllm
+piper-tts
+streamlit
+valkey
+pydantic
+python-dotenv
+pre-commit

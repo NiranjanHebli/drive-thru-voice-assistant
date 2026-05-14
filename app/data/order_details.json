@@ -1,0 +1,76 @@
+{
+  "menu_schema_version": "1.2",
+  "currency": "INR",
+  "store_metadata": {
+    "location": "IIT_Campus",
+    "tax_rate": 0.05,
+    "packaging_charge": 15
+  },
+  "categories": [
+    { "id": "cat_1", "name": "Burgers", "availability": "all_day" },
+    { "id": "cat_2", "name": "Sides & Snacks", "availability": "all_day" },
+    { "id": "cat_3", "name": "Beverages", "availability": "all_day" },
+    { "id": "cat_4", "name": "Desserts", "availability": "all_day" },
+    { "id": "cat_5", "name": "Rice Bowls", "availability": "12:00-23:00" },
+    { "id": "cat_6", "name": "Breakfast Specials", "availability": "07:00-11:00" },
+    { "id": "cat_7", "name": "Wraps & Rolls", "availability": "all_day" }
+  ],
+  "items": [
+    { "id": "itm_1", "name": "McAloo Tikki Burger", "category_id": "cat_1", "base_price": 99, "modifier_group_ids": ["mg_1", "mg_2", "mg_6"] },
+    { "id": "itm_2", "name": "Maharaja Mac (Veg)", "category_id": "cat_1", "base_price": 229, "modifier_group_ids": ["mg_1", "mg_2", "mg_6"] },
+    { "id": "itm_11", "name": "Maharaja Mac (Chicken)", "category_id": "cat_1", "base_price": 259, "modifier_group_ids": ["mg_1", "mg_2", "mg_6"] },
+    { "id": "itm_12", "name": "Filet-O-Fish", "category_id": "cat_1", "base_price": 195, "modifier_group_ids": ["mg_1", "mg_2"] },
+    { "id": "itm_13", "name": "Schezwan Veg Burger", "category_id": "cat_1", "base_price": 120, "modifier_group_ids": ["mg_1", "mg_3"] },
+    { "id": "itm_3", "name": "Spicy Paneer Wrap", "category_id": "cat_7", "base_price": 189, "modifier_group_ids": ["mg_1", "mg_3"] },
+    { "id": "itm_14", "name": "Egg & Cheese Wrap", "category_id": "cat_7", "base_price": 149, "modifier_group_ids": ["mg_1", "mg_3"] },
+    { "id": "itm_15", "name": "Butter Chicken Roll", "category_id": "cat_7", "base_price": 210, "modifier_group_ids": ["mg_3"] },
+    { "id": "itm_16", "name": "Masala Dosa Burger", "category_id": "cat_6", "base_price": 125, "modifier_group_ids": ["mg_1"] },
+    { "id": "itm_17", "name": "Veg McMuffin", "category_id": "cat_6", "base_price": 110, "modifier_group_ids": ["mg_2"] },
+    { "id": "itm_18", "name": "Hot Cakes with Syrup", "category_id": "cat_6", "base_price": 160, "modifier_group_ids": [] },
+    { "id": "itm_6", "name": "Peri-Peri Fries", "category_id": "cat_2", "base_price": 129, "modifier_group_ids": ["mg_4"] },
+    { "id": "itm_19", "name": "Veg Pizza Puff", "category_id": "cat_2", "base_price": 55, "modifier_group_ids": [] },
+    { "id": "itm_20", "name": "Chicken McNuggets (6pc)", "category_id": "cat_2", "base_price": 175, "modifier_group_ids": ["mg_7"] },
+    { "id": "itm_8", "name": "Cold Coffee", "category_id": "cat_3", "base_price": 149, "modifier_group_ids": ["mg_5", "mg_8"] },
+    { "id": "itm_21", "name": "Masala Chai", "category_id": "cat_3", "base_price": 45, "modifier_group_ids": ["mg_9"] },
+    { "id": "itm_22", "name": "Berry Blast Shake", "category_id": "cat_3", "base_price": 199, "modifier_group_ids": ["mg_5"] }
+  ],
+  "modifier_groups": [
+    { "id": "mg_1", "name": "Veggies", "min": 0, "max": 5 },
+    { "id": "mg_2", "name": "Add-ons", "min": 0, "max": 3 },
+    { "id": "mg_3", "name": "Sauces", "min": 0, "max": 2 },
+    { "id": "mg_4", "name": "Fry Size", "min": 1, "max": 1 },
+    { "id": "mg_5", "name": "Drink Size", "min": 1, "max": 1 },
+    { "id": "mg_6", "name": "Bun Substitution", "min": 1, "max": 1 },
+    { "id": "mg_7", "name": "Dips", "min": 1, "max": 2 },
+    { "id": "mg_8", "name": "Sweetness Level", "min": 1, "max": 1 },
+    { "id": "mg_9", "name": "Tea Prep", "min": 0, "max": 2 }
+  ],
+  "modifiers": [
+    { "id": "m_1", "group_id": "mg_1", "name": "No Onions", "price": 0 },
+    { "id": "m_2", "group_id": "mg_1", "name": "Extra Jalapenos", "price": 25 },
+    { "id": "m_3", "group_id": "mg_2", "name": "Extra Cheese Slice", "price": 35 },
+    { "id": "m_4", "group_id": "mg_2", "name": "Add Fried Egg", "price": 30 },
+    { "id": "m_5", "group_id": "mg_3", "name": "Tandoori Mayo", "price": 20 },
+    { "id": "m_6", "group_id": "mg_3", "name": "Harissa Sauce", "price": 25 },
+    { "id": "m_7", "group_id": "mg_4", "name": "Regular", "price": 0 },
+    { "id": "m_8", "group_id": "mg_4", "name": "Medium", "price": 40 },
+    { "id": "m_9", "group_id": "mg_4", "name": "Large", "price": 70 },
+    { "id": "m_10", "group_id": "mg_5", "name": "Regular", "price": 0 },
+    { "id": "m_11", "group_id": "mg_5", "name": "Large", "price": 50 },
+    { "id": "m_12", "group_id": "mg_8", "name": "No Sugar", "price": 0 },
+    { "id": "m_13", "group_id": "mg_8", "name": "Extra Sweet", "price": 0 },
+    { "id": "m_14", "group_id": "mg_9", "name": "With Ginger", "price": 5 },
+    { "id": "m_15", "group_id": "mg_9", "name": "With Cardamom", "price": 5 }
+  ],
+  "combos": [
+    { "id": "c_1", "name": "Everyday Value Meal", "items": ["itm_1", "itm_6", "itm_10"], "price": 249 },
+    { "id": "c_2", "name": "Maharaja Feast", "items": ["itm_2", "itm_6", "itm_8"], "price": 449 },
+    { "id": "c_3", "name": "Breakfast Platter", "items": ["itm_17", "itm_18", "itm_21"], "price": 280 },
+    { "id": "c_4", "name": "Snack Box", "items": ["itm_20", "itm_19", "itm_11"], "price": 310 }
+  ],
+  "special_offers": [
+    { "id": "s_1", "name": "Student Discount", "type": "percentage", "value": 10, "requires_id": true },
+    { "id": "s_2", "name": "Corporate Night", "type": "flat", "value": 100, "min_spend": 800, "time": "19:00-22:00" },
+    { "id": "s_3", "name": "Buy 2 Get 1 - Wraps", "type": "B2G1", "category_id": "cat_7" }
+  ]
+}
