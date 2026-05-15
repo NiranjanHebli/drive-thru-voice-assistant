@@ -10,3 +10,4 @@ python-dotenv
 pre-commit
 streamlit-mic-recorder
 edge-tts
+websockets

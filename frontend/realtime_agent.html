@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lisa - Drive-Thru AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #020617);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .status { display: flex; align-items: center; gap: 10px; font-weight: 600;}
+        .indicator { width: 12px; height: 12px; border-radius: 50%; background: red; transition: background 0.3s;}
+        .indicator.online { background: #10b981; box-shadow: 0 0 10px #10b981;}
+        .container { display: flex; flex: 1; padding: 40px; gap: 40px; min-height: 0; }
+        .panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .log-panel { flex: 1; overflow-y: auto; }
+        .log-panel h2 { margin-top: 0; font-size: 1.2rem; letter-spacing: 2px; color: #94a3b8; text-transform: uppercase;}
+        .chat-msg { margin-bottom: 20px; line-height: 1.5; font-size: 1.1rem; }
+        .chat-user { color: #fff; }
+        .chat-ai { color: #10b981; font-weight: 600;}
+        .center-stage {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: url('https://ui-avatars.com/api/?name=Lisa&size=200&background=10b981&color=fff') center/cover;
+            border: 4px solid #10b981;
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.4);
+            margin-bottom: 40px;
+            transition: all 0.2s;
+        }
+        .avatar.speaking {
+            box-shadow: 0 0 80px rgba(16, 185, 129, 0.8);
+            transform: scale(1.05);
+        }
+        .wave-container {
+            height: 100px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .bar {
+            width: 8px;
+            height: 10px;
+            background: #10b981;
+            border-radius: 4px;
+            transition: height 0.1s ease;
+        }
+        .controls { margin-top: 40px; display: flex; gap: 20px; }
+        button {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-start { background: #10b981; color: #020617; }
+        .btn-start:hover { box-shadow: 0 0 20px #10b981; transform: translateY(-2px);}
+        .btn-stop { background: #ef4444; color: white; display: none;}
+        .btn-stop:hover { box-shadow: 0 0 20px #ef4444; transform: translateY(-2px);}
+        .cart-panel { flex: 1; }
+        .cart-panel h2 { margin-top: 0; font-size: 1.2rem; letter-spacing: 2px; color: #94a3b8; text-transform: uppercase;}
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.1rem;
+        }
+        .cart-total {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #10b981;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;">DRIVE-THRU <span style="color: #10b981;">AI</span></div>
+    <div class="status">
+        <div class="indicator" id="status-indicator"></div>
+        <span id="status-text">DISCONNECTED</span>
+    </div>
+</header>
+
+<div class="container">
+    <div class="panel log-panel">
+        <h2>Conversation Log</h2>
+        <div id="chat-box"></div>
+    </div>
+    
+    <div class="center-stage">
+        <div class="avatar" id="avatar"></div>
+        <div class="wave-container" id="wave"></div>
+        <h3 id="ai-status" style="color: #10b981; letter-spacing: 2px; margin-top: 20px;">READY</h3>
+        <div class="controls">
+            <button class="btn-start" id="btn-start">CONNECT & TALK</button>
+            <button class="btn-stop" id="btn-stop">END SESSION</button>
+        </div>
+    </div>
+    
+    <div class="panel cart-panel">
+        <h2>Live Order</h2>
+        <div id="cart-items"><div style="color: #64748b; margin-top: 20px;">Cart is empty</div></div>
+        <div class="cart-total">
+            <span>Total:</span>
+            <span id="cart-total">₹0.00</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    const btnStart = document.getElementById('btn-start');
+    const btnStop = document.getElementById('btn-stop');
+    const statusInd = document.getElementById('status-indicator');
+    const statusText = document.getElementById('status-text');
+    const chatBox = document.getElementById('chat-box');
+    const cartItems = document.getElementById('cart-items');
+    const cartTotal = document.getElementById('cart-total');
+    const avatar = document.getElementById('avatar');
+    const aiStatus = document.getElementById('ai-status');
+    const wave = document.getElementById('wave');
+    
+    for(let i=0; i<30; i++) {
+        let b = document.createElement('div');
+        b.className = 'bar';
+        wave.appendChild(b);
+    }
+    const bars = document.querySelectorAll('.bar');
+
+    let ws = null;
+    let audioContext = null;
+    let microphone = null;
+    let processor = null;
+    let sessionId = "sesh_" + Math.floor(Math.random()*10000);
+    
+    let currentSource = null;
+    let ttsBuffer = [];
+
+    btnStart.addEventListener('click', startSession);
+    btnStop.addEventListener('click', stopSession);
+
+    function logChat(role, text) {
+        const div = document.createElement('div');
+        div.className = 'chat-msg ' + (role === 'ai' ? 'chat-ai' : 'chat-user');
+        div.innerHTML = role === 'ai' ? `<strong>LISA:</strong> ${text}` : `<strong>YOU:</strong> ${text}`;
+        chatBox.appendChild(div);
+        
+        // Scroll the parent panel instead of the div
+        const logPanel = document.querySelector('.log-panel');
+        logPanel.scrollTop = logPanel.scrollHeight;
+    }
+
+    function updateCart(cart) {
+        if (!cart || cart.length === 0) {
+            cartItems.innerHTML = '<div style="color: #64748b; margin-top: 20px;">Cart is empty</div>';
+            cartTotal.innerText = '₹0.00';
+            return;
+        }
+        cartItems.innerHTML = '';
+        let total = 0;
+        cart.forEach(item => {
+            total += item.price;
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `<span>${item.item_name}</span><span>₹${item.price}</span>`;
+            cartItems.appendChild(div);
+        });
+        cartTotal.innerText = `₹${total}`;
+    }
+
+    async function startSession() {
+        try {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                throw new Error("Microphone API not available. Please ensure you are accessing this page via 'http://localhost:8000' or a secure HTTPS connection.");
+            }
+            
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+            
+            microphone = audioContext.createMediaStreamSource(stream);
+            processor = audioContext.createScriptProcessor(2048, 1, 1);
+            
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const host = window.location.host; 
+            ws = new WebSocket(`${protocol}//${host}/ws/drive-thru/${sessionId}`);
+            ws.binaryType = 'arraybuffer';
+            
+            ws.onopen = () => {
+                statusInd.classList.add('online');
+                statusText.innerText = "ONLINE";
+                btnStart.style.display = 'none';
+                btnStop.style.display = 'block';
+                
+                processor.onaudioprocess = (e) => {
+                    const inputData = e.inputBuffer.getChannelData(0);
+                    const pcm16 = new Int16Array(inputData.length);
+                    let sum = 0;
+                    for (let i = 0; i < inputData.length; i++) {
+                        let s = Math.max(-1, Math.min(1, inputData[i]));
+                        pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                        sum += Math.abs(inputData[i]);
+                    }
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(pcm16.buffer);
+                    }
+                    if (!currentSource) {
+                        const rms = Math.sqrt(sum / inputData.length);
+                        animateWave(rms * 10);
+                    }
+                };
+                
+                microphone.connect(processor);
+                processor.connect(audioContext.destination);
+            };
+            
+            ws.onmessage = async (e) => {
+                if (typeof e.data === 'string') {
+                    const msg = JSON.parse(e.data);
+                    if (msg.event === 'transcription') {
+                        logChat('user', msg.text);
+                        aiStatus.innerText = 'THINKING...';
+                        ttsBuffer = []; // reset buffer
+                    } else if (msg.event === 'llm_response') {
+                        logChat('ai', msg.text);
+                        updateCart(msg.cart);
+                    } else if (msg.event === 'tts_done') {
+                        // Play accumulated buffer
+                        if(ttsBuffer.length > 0) {
+                            playTTSBuffer();
+                        }
+                    } else if (msg.event === 'barge_in') {
+                        aiStatus.innerText = 'LISTENING...';
+                        avatar.classList.remove('speaking');
+                        stopPlayback();
+                        animateWave(0);
+                    }
+                } else {
+                    // Accumulate raw bytes
+                    ttsBuffer.push(e.data);
+                }
+            };
+            
+            ws.onclose = () => { stopSession(); }
+            
+        } catch(e) { alert("Error accessing microphone: " + e.message); }
+    }
+    
+    async function playTTSBuffer() {
+        if(ttsBuffer.length === 0) return;
+        
+        // Calculate total length
+        let totalLen = 0;
+        for(let b of ttsBuffer) totalLen += b.byteLength;
+        let finalBuffer = new Uint8Array(totalLen);
+        let offset = 0;
+        for(let b of ttsBuffer) {
+            finalBuffer.set(new Uint8Array(b), offset);
+            offset += b.byteLength;
+        }
+        ttsBuffer = [];
+        
+        try {
+            const audioBuf = await audioContext.decodeAudioData(finalBuffer.buffer);
+            stopPlayback(); // stop any current
+            currentSource = audioContext.createBufferSource();
+            currentSource.buffer = audioBuf;
+            currentSource.connect(audioContext.destination);
+            
+            currentSource.onended = () => {
+                currentSource = null;
+                aiStatus.innerText = 'READY';
+                avatar.classList.remove('speaking');
+                animateWave(0);
+            };
+            
+            aiStatus.innerText = 'SPEAKING...';
+            avatar.classList.add('speaking');
+            animateWave(0.5); // fake wave
+            currentSource.start(0);
+        } catch(err) { console.error("Decode error", err); }
+    }
+
+    function stopPlayback() {
+        if(currentSource) {
+            currentSource.stop();
+            currentSource = null;
+        }
+    }
+
+    function animateWave(intensity) {
+        bars.forEach(bar => {
+            bar.style.height = `${10 + Math.random() * 80 * intensity}px`;
+        });
+    }
+
+    function stopSession() {
+        if(ws) ws.close();
+        if(processor) processor.disconnect();
+        if(microphone) microphone.disconnect();
+        statusInd.classList.remove('online');
+        statusText.innerText = "DISCONNECTED";
+        btnStart.style.display = 'block';
+        btnStop.style.display = 'none';
+        aiStatus.innerText = 'OFFLINE';
+        avatar.classList.remove('speaking');
+        stopPlayback();
+        animateWave(0);
+    }
+</script>
+</body>
+</html>

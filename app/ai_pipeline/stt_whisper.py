@@ -14,17 +14,21 @@ class FasterWhisperSTT:
 
         def _transcribe_sync():
             try:
-                # Convert raw bytes to AudioData for SpeechRecognition
-                # Since streamlit-mic-recorder format="wav", it's a valid wav file buffer
-                with sr.AudioFile(io.BytesIO(audio_buffer)) as source:
-                    audio_data = self.recognizer.record(source)
+                # Try to load as WAV file (for Streamlit mic recorder)
+                try:
+                    with sr.AudioFile(io.BytesIO(audio_buffer)) as source:
+                        audio_data = self.recognizer.record(source)
+                except Exception:
+                    # If not a valid WAV, assume raw PCM 16-bit 16000Hz (for WebSockets)
+                    audio_data = sr.AudioData(audio_buffer, 16000, 2)
+
                 # Use Google's free Web API for immediate interactivity without heavy local models
                 return self.recognizer.recognize_google(audio_data)
             except sr.UnknownValueError:
-                return "I couldn't understand that."
+                return ""
             except Exception as e:
                 print(f"STT Error: {e}")
-                return "There was an error with transcription."
+                return ""
 
         text = await loop.run_in_executor(None, _transcribe_sync)
         return text

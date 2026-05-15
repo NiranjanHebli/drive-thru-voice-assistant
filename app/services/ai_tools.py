@@ -39,8 +39,7 @@ def checkout(cart):
 
     total = sum(item["price"] for item in cart)
     # In a real app, we'd send this to a payments service or KDS
-    # For now, we'll just return the total and clear the cart
-    cart.clear()
+    # For now, we'll just return the total without clearing the cart so the UI shows it.
 
     return {
         "success": True,

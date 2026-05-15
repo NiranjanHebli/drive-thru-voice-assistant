@@ -69,7 +69,9 @@ class DialogueManager:
             greeting = "evening"
 
         # 2. Prepare conversation history with the Master System Prompt
-        messages = [{"role": "system", "content": get_system_prompt(greeting)}]
+        messages = [
+            {"role": "system", "content": get_system_prompt(greeting, cart_state)}
+        ]
 
         # Append recent chat history (last 10 messages to save context limit, format the transcript markers)
         for msg in chat_history[-10:]:
