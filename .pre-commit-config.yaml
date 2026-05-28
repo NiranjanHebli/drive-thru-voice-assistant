@@ -1,9 +1,18 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 24.4.2  # Use the latest stable version
+    rev: 24.4.2
     hooks:
       - id: black
         language_version: python3
+
+  - repo: local
+    hooks:
+      - id: git-add
+        name: git add
+        entry: git add -u
+        language: system
+        stages: [pre-commit]
+        pass_filenames: false
 
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v3.4.0 
